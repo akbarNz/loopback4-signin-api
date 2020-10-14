@@ -18,11 +18,16 @@ import {
 } from '@loopback/rest';
 import {User} from '../models';
 import {UserRepository} from '../repositories';
+import {inject} from '@loopback/core';
+import {PasswordHasherBindings} from '../keys';
+import {PasswordHasherService} from '../services/password-hasher.service';
 
 export class UserController {
   constructor(
     @repository(UserRepository)
     public userRepository : UserRepository,
+    @inject(PasswordHasherBindings.PASSWORD_HASHER)
+    public passwordHasher: PasswordHasherService,
   ) {}
 
   @post('/users', {

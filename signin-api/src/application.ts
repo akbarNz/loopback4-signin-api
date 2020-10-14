@@ -5,21 +5,23 @@ import {RestApplication} from '@loopback/rest';
 import {RestExplorerBindings, RestExplorerComponent} from '@loopback/rest-explorer';
 import {ServiceMixin} from '@loopback/service-proxy';
 import path from 'path';
+import {PasswordHasherBindings} from './keys';
 import {MySequence} from './sequence';
+import {PasswordHasherService} from './services/password-hasher.service';
 
 export {ApplicationConfig};
 
 export class SigninApiApplication extends BootMixin(
   ServiceMixin(RepositoryMixin(RestApplication)),
 ) {
+  setUpBindings(): void {
+    this.bind(PasswordHasherBindings.ROUNDS).to(10);
+    this.bind(PasswordHasherBindings.PASSWORD_HASHER).toClass(PasswordHasherService);
+  }
   constructor(options: ApplicationConfig = {}) {
     super(options);
-
     // Set up the custom sequence
     this.sequence(MySequence);
-
-
-
     // Set up default home page
     this.static('/', path.join(__dirname, '../public'));
 
@@ -28,6 +30,7 @@ export class SigninApiApplication extends BootMixin(
       path: '/explorer',
     });
     this.component(RestExplorerComponent);
+    this.setUpBindings();
 
     this.projectRoot = __dirname;
     // Customize @loopback/boot Booter Conventions here
